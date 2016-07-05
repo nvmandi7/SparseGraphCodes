@@ -5,8 +5,11 @@ import numpy as np
 
 	
 #config
+k = 50 # number of jobs
 # n = 120 # number of machines
-k = 600 # number of jobs
+# ns = range(int(1.5*k), int(3*k), k/10)
+ns = [2*k]
+
 L = 8 # number of cores on each machine
 eps = 0.1 # failure probability of machine
 singleton_fraction = 0.01
@@ -151,7 +154,6 @@ def run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction):
 	return success_rate
 
 success_rates = []
-ns = range(k, int(3*k), k/10)
 for n in ns:
 	success_rates.append(run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction))
 
