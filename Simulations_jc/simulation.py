@@ -1,14 +1,16 @@
+# Force matplotlib to not use any Xwindows backend.
+import matplotlib; matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 import numpy as np
 
-
+	
 #config
-n = 120 # number of machines
-k = 60 # number of jobs
-L = 30 # number of cores on each machine
+# n = 120 # number of machines
+k = 600 # number of jobs
+L = 8 # number of cores on each machine
 eps = 0.1 # failure probability of machine
 singleton_fraction = 0.01
-num_trials = 10000
-
+num_trials = 1000
 
 
 def run_trial(n, k, L, eps, singleton_fraction):
@@ -16,15 +18,15 @@ def run_trial(n, k, L, eps, singleton_fraction):
 	machine_jobs = []
 	machine_success = [True for _ in range(n)]
 	job_success = [False for _ in range(k)]
-	dec_seq = np.identity(n , dtype = int) # used when decoding
-	dec_ans = [(-1) for _ in range(k)]
 
-	job_ans = list(np.random.rand(k))
+	# dec_seq = np.identity(n , dtype = int) # used when decoding
+	# dec_ans = [(-1) for _ in range(k)]
+	# job_ans = list(np.random.rand(k))
 
 
 	# distribute part
 	# give singleton
-	for _ in range(np.floor(singleton_fraction * n)):
+	for _ in range(int(np.floor(singleton_fraction * n))):
 		machine_job_degrees.append(1)
 
 	H_L = sum([1/float(i) for i in range(1,L+1)])
@@ -60,21 +62,32 @@ def run_trial(n, k, L, eps, singleton_fraction):
 
 	# run & decode part
 
-	# encode job data
-	machine_enc_data = []
-	for jobs in machine_jobs:
-		tmp_encode = 0
-		for job in jobs:
-			tmp_encode += job_ans[job]
-		machine_enc_data.append(tmp_encode)
-	machine_enc_data = np.array(machine_enc_data)
+	# encode job data based on job-machine graph
+	# machine_enc_data = []
+	# for jobs in machine_jobs:
+	# 	tmp_encode = 0
+	# 	for job in jobs:
+	# 		tmp_encode += job_ans[job]
+	# 	machine_enc_data.append(tmp_encode)
+	# machine_enc_data = np.array(machine_enc_data)
 
 	# after running, failure occurs
-	ct_fail = int(np.floor( n * eps ))
-	for i in list(np.random.choice(n, ct_fail, replace = False)):
-		machine_success[i] = False
-		machine_jobs[i] = []
-	# ..or roll the dice for every machine?
+
+	# constant fraction error
+	# ct_fail = int(np.floor( n * eps ))
+	# for i in list(np.random.choice(n, ct_fail, replace = False)):
+	# 	machine_success[i] = False
+	# 	machine_jobs[i] = []
+
+	# ..or roll the dice for every machine
+	tmp_uniform = np.random.uniform(0,1,n)
+	for i in range(n):
+		if tmp_uniform[i] < eps:
+			machine_success[i] = False
+			machine_jobs[i] = []
+		else:
+			machine_success[i] = True
+
 
 	# peeling process
 	singleton_exist = True
@@ -86,7 +99,7 @@ def run_trial(n, k, L, eps, singleton_fraction):
 				singleton_exist = True
 				job_singleton = machine_jobs[m_i].pop()
 				job_success[job_singleton] = True
-				dec_ans[job_singleton] = m_i
+				# dec_ans[job_singleton] = m_i
 
 				#remove singleton job from other machine
 				for m_i2 in range(len(machine_jobs)):
@@ -94,7 +107,7 @@ def run_trial(n, k, L, eps, singleton_fraction):
 						machine_jobs[m_i2].remove(job_singleton)
 						
 						# print dec_seq, m_i2, m_i, len(machine_jobs)
-						dec_seq[m_i2] -= dec_seq[m_i] # getting to know decoding sequence
+						# dec_seq[m_i2] -= dec_seq[m_i] # getting to know decoding sequence
 
 	# check all job-machine edges peeled
 	if sum(len(machine) for machine in machine_jobs) == 0:
@@ -112,28 +125,46 @@ def run_trial(n, k, L, eps, singleton_fraction):
 	# 	print "there was job not assigned?"
 
 	# run decoding process
-	if decode_success:
-		# decode
-		job_ans2 = []
-		for job in range(k):
-			tmp_job_ans = np.dot(machine_enc_data,dec_seq[dec_ans[job]])
-			job_ans2.append(tmp_job_ans)
-		# check with answer
-		for job in range(k):
-			# print abs(job_ans[job] - job_ans2[job])
-			if abs(job_ans[job] - job_ans2[job]) > 0.0001:
-				print "Decode wrong!!!"
+	# if decode_success:
+	# 	# decode
+	# 	job_ans2 = []
+	# 	for job in range(k):
+	# 		tmp_job_ans = np.dot(machine_enc_data,dec_seq[dec_ans[job]])
+	# 		job_ans2.append(tmp_job_ans)
+	# 	# check with answer
+	# 	for job in range(k):
+	# 		# print abs(job_ans[job] - job_ans2[job])
+	# 		if abs(job_ans[job] - job_ans2[job]) > 0.0001:
+	# 			print "Decode wrong!!!"
 
 	return decode_success
 
+def run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction):
+	# Run trial
+	ct_success = 0;
+	for i in range(num_trials):
+		if run_trial(n, k, L, eps, singleton_fraction):
+			ct_success +=1
+		if i % 100 == 0: print "running trial", i 
+	success_rate = (ct_success / float(num_trials))
+	print "success rate:", success_rate, "at n=", n
+	return success_rate
 
-# Run trial
-ct_success = 0;
-for _ in range(num_trials):
-	if run_trial(n, k, L, eps, singleton_fraction):
-		ct_success +=1
+success_rates = []
+ns = range(k, int(3*k), k/10)
+for n in ns:
+	success_rates.append(run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction))
 
-print "success rate:", (ct_success / float(num_trials))
+ndivk = [n/float(k) for n in ns]	
+plt.plot(ndivk, success_rates, label='TTT' )
+plt.title('LDGM Success Rate for L=%d (Irregular Left)' % L)
+plt.xlabel('Ratio of machines to jobs (n/k)')
+plt.ylabel('Success Rate')
+plt.legend()
+# plt.show()
+plt.savefig('f1.png')
+
+
 
 
 
