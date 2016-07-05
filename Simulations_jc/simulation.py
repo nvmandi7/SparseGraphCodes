@@ -1,20 +1,16 @@
-# Force matplotlib to not use any Xwindows backend.
-import matplotlib; matplotlib.use('Agg')
+
+import matplotlib; matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend.
 from matplotlib import pyplot as plt
 import numpy as np
-
 	
 #config
-k = 50 # number of jobs
-# n = 120 # number of machines
-# ns = range(int(1.5*k), int(3*k), k/10)
-ns = [2*k]
+k = 100 # number of jobs
+ns = range(int(1.0*k), int(2*k), k/10)
 
 L = 8 # number of cores on each machine
-eps = 0.1 # failure probability of machine
+eps = 0.0001 # failure probability of machine
 singleton_fraction = 0.01
 num_trials = 1000
-
 
 def run_trial(n, k, L, eps, singleton_fraction):
 	machine_job_degrees = []
@@ -148,7 +144,7 @@ def run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction):
 	for i in range(num_trials):
 		if run_trial(n, k, L, eps, singleton_fraction):
 			ct_success +=1
-		if i % 100 == 0: print "running trial", i 
+		# if i % 100 == 0: print "running trial", i 
 	success_rate = (ct_success / float(num_trials))
 	print "success rate:", success_rate, "at n=", n
 	return success_rate
