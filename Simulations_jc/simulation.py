@@ -99,8 +99,8 @@ def run_trial(n, k, L, eps, singleton_fraction):
 					if job_singleton in machine_jobs[m_i2]:
 						machine_jobs[m_i2].remove(job_singleton)
 						
-						# print dec_seq, m_i2, m_i, len(machine_jobs)
-						# dec_seq[m_i2] -= dec_seq[m_i] # getting to know decoding sequence (used in decoding)
+						# calculate decoding sequence (used in decoding)
+						# dec_seq[m_i2] -= dec_seq[m_i] 
 
 	# check all job-machine edges peeled
 	if sum(len(machine) for machine in machine_jobs) == 0:
@@ -148,7 +148,7 @@ for n in ns:
 	success_rates.append(run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction))
 
 ndivk = [n/float(k) for n in ns]	
-plt.plot(ndivk, success_rates, label='TTT' )
+plt.plot(ndivk, success_rates, label='rate' )
 plt.title('LDGM Success Rate for L=%d (Irregular Left)' % L)
 plt.xlabel('Ratio of machines to jobs (n/k)')
 plt.ylabel('Success Rate')
