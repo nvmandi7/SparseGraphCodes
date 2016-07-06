@@ -18,10 +18,10 @@ def run_trial(n, k, L, eps, singleton_fraction):
 	machine_success = [True for _ in range(n)]
 	job_success = [False for _ in range(k)]
 
-	# dec_seq = np.identity(n , dtype = int) # used when decoding
+	# used when decoding(disable for speeed)
+	# dec_seq = np.identity(n , dtype = int) 
 	# dec_ans = [(-1) for _ in range(k)]
 	# job_ans = list(np.random.rand(k))
-
 
 	# distribute part
 	# give singleton
@@ -29,22 +29,19 @@ def run_trial(n, k, L, eps, singleton_fraction):
 		machine_job_degrees.append(1)
 
 	H_L = sum([1/float(i) for i in range(1,L+1)])
-	# print "H_L",H_L
-
+	
 	# check machine degree
 	c_beta = 1/sum([1/(H_L*(i-1)*i) for i in range(2, L+1)]) # normalize constant for beta
 
 	for i in range(2,L+1):
 		beta_i = c_beta * (1/(H_L*(i-1)*i)) # probability of machine with degree i
 		ct_machine = int(np.floor(beta_i * n * (1 - singleton_fraction)))  # number of machines with degree i
-		# print "ct_mach", ct_machine, "i", i
 		for _ in range(ct_machine):
 			machine_job_degrees.append(i)
 
 	# fill remaining machines
-	# print "filled by dist",len(machine_job_degrees), "/", n
-
-	# assert len(machine_job_degrees) < n, "no place to assign singleton!"
+	
+	assert len(machine_job_degrees) < n, "check machine degree!"
 	
 	# assign any number of jobs for remaining machine
 	while len(machine_job_degrees) < n:
@@ -57,11 +54,9 @@ def run_trial(n, k, L, eps, singleton_fraction):
 	for job_degree in machine_job_degrees:
 		machine_jobs.append(list(np.random.choice(k, job_degree, replace = False)))
 
-
-
 	# run & decode part
 
-	# encode job data based on job-machine graph
+	# encode job data based on job-machine graph(disabled for speedup)
 	# machine_enc_data = []
 	# for jobs in machine_jobs:
 	# 	tmp_encode = 0
@@ -72,7 +67,7 @@ def run_trial(n, k, L, eps, singleton_fraction):
 
 	# after running, failure occurs
 
-	# constant fraction error
+	# constant fraction of machine error
 	# ct_fail = int(np.floor( n * eps ))
 	# for i in list(np.random.choice(n, ct_fail, replace = False)):
 	# 	machine_success[i] = False
@@ -86,7 +81,6 @@ def run_trial(n, k, L, eps, singleton_fraction):
 			machine_jobs[i] = []
 		else:
 			machine_success[i] = True
-
 
 	# peeling process
 	singleton_exist = True
@@ -106,7 +100,7 @@ def run_trial(n, k, L, eps, singleton_fraction):
 						machine_jobs[m_i2].remove(job_singleton)
 						
 						# print dec_seq, m_i2, m_i, len(machine_jobs)
-						# dec_seq[m_i2] -= dec_seq[m_i] # getting to know decoding sequence
+						# dec_seq[m_i2] -= dec_seq[m_i] # getting to know decoding sequence (used in decoding)
 
 	# check all job-machine edges peeled
 	if sum(len(machine) for machine in machine_jobs) == 0:
