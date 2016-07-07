@@ -4,13 +4,15 @@ from matplotlib import pyplot as plt
 import numpy as np
 	
 #config
-k = 100 # number of jobs
-ns = range(int(1.0*k), int(2*k), k/10)
+k = 500 # number of jobs
+ns = range(int(1.0*k), int(2*k+1), k/10)
 
-L = 8 # number of cores on each machine
-eps = 0.0001 # failure probability of machine
-singleton_fraction = 0.01
-num_trials = 1000
+Ls = [8, 16, 32] # number of cores on each machine
+
+
+eps = 0.01 # failure probability of machine
+singleton_fraction = 0.05
+num_trials = 100
 
 def run_trial(n, k, L, eps, singleton_fraction):
 	machine_job_degrees = []
@@ -45,8 +47,9 @@ def run_trial(n, k, L, eps, singleton_fraction):
 	
 	# assign any number of jobs for remaining machine
 	while len(machine_job_degrees) < n:
-		machine_job_degrees.append(np.random.randint(1, k+1))
-	
+		machine_job_degrees.append(1)
+		# machine_job_degrees.append(np.random.randint(1, k+1))
+
 	# while sum(machine_job_degrees) % k != 0:
 	# 	machine_degrees[0] += 1  # Forces job_degree to be an integer for irregular left
 	
@@ -74,9 +77,17 @@ def run_trial(n, k, L, eps, singleton_fraction):
 	# 	machine_jobs[i] = []
 
 	# ..or roll the dice for every machine
-	tmp_uniform = np.random.uniform(0,1,n)
+	# tmp_uniform = np.random.uniform(0,1,n)
+	# for i in range(n):
+	# 	if tmp_uniform[i] < eps:
+	# 		machine_success[i] = False
+	# 		machine_jobs[i] = []
+	# 	else:
+	# 		machine_success[i] = True
+
+	#same rolling dice
 	for i in range(n):
-		if tmp_uniform[i] < eps:
+		if eps > np.random.random():
 			machine_success[i] = False
 			machine_jobs[i] = []
 		else:
@@ -109,7 +120,8 @@ def run_trial(n, k, L, eps, singleton_fraction):
 		peel_success = False
 
 	# check if successfully got job value
-	if sum(job_success) == len(job_success):
+	# if sum(job_success) == len(job_success):
+	if sum(job_success) > 0.97*len(job_success):
 		decode_success = True
 	else:
 		decode_success = False
@@ -140,16 +152,21 @@ def run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction):
 			ct_success +=1
 		# if i % 100 == 0: print "running trial", i 
 	success_rate = (ct_success / float(num_trials))
-	print "success rate:", success_rate, "at n=", n
+	print "success rate:", success_rate, "at n/k=", float(n)/k
 	return success_rate
 
-success_rates = []
-for n in ns:
-	success_rates.append(run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction))
-
+success_rates=[]
 ndivk = [n/float(k) for n in ns]	
-plt.plot(ndivk, success_rates, label='rate' )
-plt.title('LDGM Success Rate for L=%d (Irregular Left)' % L)
+for l in range(len(Ls)):
+	tmp_success_rate=[]
+	L = Ls[l]
+	print "Running L=%d"%L
+	for n in ns:
+		tmp_success_rate.append(run_multiple_trials(num_trials, n, k, L, eps, singleton_fraction))
+	success_rates.append(tmp_success_rate)
+	plt.plot(ndivk, success_rates[l], label='L=%d'% L )
+
+plt.title('LDGM Success Rate ')
 plt.xlabel('Ratio of machines to jobs (n/k)')
 plt.ylabel('Success Rate')
 plt.legend()
