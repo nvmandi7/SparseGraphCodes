@@ -2,18 +2,23 @@ import numpy as np
 from LDGM_altered import *
 from matplotlib import pyplot as plt
 
-epsilon = .01
+epsilon = .1
+t0 = time.time()
 
 def run_task(t):
+	t1 = time.time()
 	t.distribute()
 	t.run()
+	# print('trial time ', time.time()-t1)
 	return t.peel_successful()
 
 def est_suc(k, n, L, T):
-	t = LDGM_task(k, n, L, 1, T, True, eps=epsilon)
+	t2 = time.time()
+	t = LDGM_task(k, n, L, 1, T, False, eps=epsilon)
 	trials = [run_task(t) for _ in range(10**2)]
 	suc = sum(trials) / len(trials)
 	print('For n/k = %f, suc=%f' % (n/k, suc))
+	# print('time ', time.time()-t2)
 	return suc
 
 
@@ -33,14 +38,18 @@ def est_suc(k, n, L, T):
 
 # 
 
-k = 500; T = 2
-ns = np.arange(k, 2*k+1, k/10)
-for L in [2**i for i in range(3,6)]:
-	print('\nSuccessful Decoding Probabilities for L=%f' % L)
-	suc_lst = [est_suc(k, n, L, T) for n in ns]
-	plt.plot(ns / k, suc_lst, label='L=%d' % L)
-plt.title('LDGM Success Rate w/ epsilon=%f (Irregular Left)' % epsilon)
-plt.xlabel('Ratio of machines to jobs (n/k)')
-plt.ylabel('Success Rate')
-plt.legend()
-plt.show()
+k = 1000; T = 2
+ns = np.arange(k, 1.25*k+1, k/40)
+for epsilon in [10**i for i in range(-3,0)]:
+	plt.figure()
+	for L in [2**j for j in range(1,7)]:
+		print('\nSuccessful Decoding Probabilities for L=%f' % L)
+		suc_lst = [est_suc(k, n, L, T) for n in ns]
+		plt.plot(ns / k, suc_lst, label='L=%d' % L)
+		print('total time for L=%d: ' % L, time.time()-t0)
+	plt.title('LDGM Success Rate w/ epsilon=%f (Regular Left)' % epsilon)
+	plt.xlabel('Ratio of machines to jobs (n/k)')
+	plt.ylabel('Success Rate')
+	plt.legend()
+	plt.show()
+# print('total time ', time.time()-t0)

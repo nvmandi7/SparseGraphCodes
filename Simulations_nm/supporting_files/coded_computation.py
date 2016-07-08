@@ -1,5 +1,6 @@
 from numpy import random
 from math import floor
+import time
 
 '''
 This file contains the classes needed for simulations of jobs and machines
@@ -32,21 +33,34 @@ class Task(object):
 
 
 	def distribute(self):
+		t0 = time.time()
 		if self.irregular_left:
 			for machine in self.machines:
-				jobs = random.choice(range(self.k), size=machine.degree, replace=False)
-				machine.give_jobs(list(jobs))
+				machine.jobs = list(random.choice(range(self.k), size=machine.degree, replace=False))
+				#machine.give_jobs(list(jobs))
+			# print('distribute (il) time: ', time.time()-t0)
 			return
 
+		# Requires left and right total degrees equal
 		all_jobs = []
 		for job in self.jobs:
-			lst = [job.index for _ in range(self.job_degree)]
+			lst = [job.index for _ in range(job.degree)]
 			all_jobs.extend(lst)
 		random.shuffle(all_jobs)
 
-		for machine in self.machines:
-			jobs = [all_jobs.pop() for _ in range(machine.degree)]
-			machine.give_jobs(jobs)
+		# Fix bug with giving machine same job twice
+
+		for machine in self.machines[::-1]:
+			machine.jobs, i, rem = [], 0, machine.degree
+			while rem > 0:
+				if all_jobs[i] not in machine.jobs:
+					machine.jobs.append(all_jobs.pop(i))
+					rem -= 1
+				else:
+					i += 1
+
+
+		# print('distribute time: ', time.time()-t0)
 
 
 	def run(self):
@@ -57,17 +71,23 @@ class Task(object):
 
 
 	def peel_successful(self):
-		self.return_values.sort(key=len)
+		t0 = time.time()
+		#self.return_values.sort(key=len)
 		answers = [False for i in range(self.k)]
 		while True:
-			if all(answers): return True
+			if all(answers): 
+				# print('peel time: (True)', time.time()-t0)
+				return True
 			job = self.singleton(self.return_values)[0]
-			if job == -1: return sum(answers) > .97*len(answers)
+			if job == -1: 
+				# print('peel time: ()', time.time()-t0)
+				return sum(answers) > .99*len(answers)
 			answers[job] = True
 
 			for lst in self.return_values:
 				if job in lst: lst.remove(job)
 			self.return_values.remove([])
+
 
 
 

@@ -10,6 +10,7 @@ The right node degree distribution is soliton.
 class LDGM_task(Task):
 
 	def __init__(self, k, n, L, mu, T, il, eps=10**-3):
+		t0 = time.time()
 		self.k = k
 		self.n = int(n)
 		self.L = L
@@ -35,7 +36,14 @@ class LDGM_task(Task):
 		# Sampling
 		self.machines =  [Machine(random.choice(range(self.L+1), p=L_soliton)) for _ in range(self.n)]
 
-
+		right_total = sum([m.degree for m in self.machines])
+		ave_degree = floor(right_total / self.k)
+		remainder = right_total - ave_degree*self.k
+		
+		job_degrees = [ave_degree for _ in range(self.k)]
+		for i in range(remainder): job_degrees[i] += 1
+		self.jobs = [Job(i, job_degrees[i], mu) for i in range(self.k)]
+		print('init time: ', time.time()-t0)
 
 
 
