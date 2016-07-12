@@ -26,22 +26,30 @@ def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False):
 	# run mpi processes
 	if not run_local:
 		# run mpi processes on cluster
+		cmd_arg = [
+			"mpirun", "-mca", "rmaps", "seq", "-hostfile", "myhosts",
+			"-np", str(num_worker_proc), "python", "job_worker.py", str(k), str(n), ":",
+			"-np", "1", "python", "job_master.py", str(k), str(n), str(T)
+			]
+		# subprocess.call(cmd_arg) # run with printing in stdout (for debug)
+		
+		proc = subprocess.Popen(cmd_arg, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		out, err = proc.communicate()
+		exitcode = proc.returncode
 		pass
-		# subprocess.call([
-		# 	"mpirun", "-mca", "rmaps", "seq", "-hostfile", "myhosts",
-		# 	"-np", str(n), "python", "job_worker.py", str(k), str(n), ":",
-		# 	"-np", "1", "python", "job_master.py", str(k), str(n)
-		# 	]) # need edit
 
 	else:
 		#run mpi process on local machine
-		proc = subprocess.Popen([
+		cmd_arg = [
 			"mpirun",
 			"-np", str(num_worker_proc), "python", "job_worker.py", str(k), str(n), ":",
 			"-np", "1", "python", "job_master.py", str(k), str(n), str(T)
-			], stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
-	out, err = proc.communicate()
-	exitcode = proc.returncode
+			]
+		# subprocess.call(cmd_arg) # run with printing in stdout (for debug)
+
+		proc = subprocess.Popen(cmd_arg, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		out, err = proc.communicate()
+		exitcode = proc.returncode
 
 	#returns 1 if decode success, otherwise 0
 	return int(out)
