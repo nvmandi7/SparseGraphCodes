@@ -9,7 +9,11 @@ import numpy as np
 k = int(sys.argv[1])
 n = int(sys.argv[2])
 T = float(sys.argv[3]) # time to tolerate
+
+
 error_floor = 0.01
+output_shape = (1)
+
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -22,7 +26,7 @@ completed = [False for _ in range(n)]
 rcv_requests = []
 arrival_time = [0.0 for _ in range(n)]
 machine_failed_list =[]
-encoded_data = [np.empty(1, dtype=np.float32) for _ in range(n)] # to recieve from local masters
+encoded_data = [np.empty(output_shape, dtype=np.float32) for _ in range(n)] # to recieve from local masters
 
 for i in range(n):
 	req = comm.Irecv([encoded_data[i], MPI.FLOAT], source=local_master_list[i], tag=1)
@@ -42,8 +46,6 @@ while n_done < n:
 			n_done += 1
 
 # check every receive process is done
-# for i in range(n):
-# 	rcv_requests[i].Wait()
 MPI.Request.Waitall(rcv_requests)
 
 
