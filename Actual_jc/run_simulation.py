@@ -1,14 +1,15 @@
 #!/usr/bin/python
+from math import ceil
 from graph_subroutines import *
 
 #input
-k = 6
+k = 100
 
-# ns = range(int(1.0*k), int(2*k+1), k/10)
-ns = [7,7,7]
-epss = [0.0, 0.1] # list of epsilons
+ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
+# ns = [7,8,9]
+epss = [0.1, 0.01, 0.001] # list of epsilons
 
-n_trial = 10
+n_trial = 100
 error_floor = 0.01
 
 

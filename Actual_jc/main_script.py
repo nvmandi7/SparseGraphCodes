@@ -7,8 +7,8 @@ from graph_subroutines import *
 #input
 k = 6
 # ns = range(int(1.0*k), int(2*k+1), k/10)
-ns = [7,7,7]
-Ts = [10.0, 5.0]
+ns = [7]
+Ts = [5.0]
 n_trial = 1
 
 def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False):
