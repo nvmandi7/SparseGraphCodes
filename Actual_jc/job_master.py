@@ -12,7 +12,7 @@ T = float(sys.argv[3]) # time to tolerate
 
 
 error_floor = 0.01
-output_shape = (1)
+output_shape = (1) # speicfy computaional job output array shape
 
 
 comm = MPI.COMM_WORLD
