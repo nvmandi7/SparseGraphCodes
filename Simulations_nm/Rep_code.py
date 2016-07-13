@@ -4,6 +4,9 @@ from coded_computation import *
 
 '''
 This file contains the specific task init method needed for the repetition code simulation. 
+
+It turns out, there's no need to even consider this code, because LDGM converges to 
+probability 1 of success long before using even twice as many machines as jobs.
 '''
 
 class LDGM_task(Task):

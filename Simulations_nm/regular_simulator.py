@@ -1,5 +1,5 @@
 import numpy as np
-from LDGM_altered import *
+from regular_right import *
 from matplotlib import pyplot as plt
 
 epsilon = .1
@@ -12,9 +12,9 @@ def run_task(t):
 	# print('trial time ', time.time()-t1)
 	return t.peel_successful()
 
-def est_suc(k, n, L, T):
+def est_suc(k, n, L, ld):
 	t2 = time.time()
-	t = LDGM_task(k, n, L, 1, T, True, eps=epsilon)
+	t = Regular(k, n, L, epsilon, ld)
 	trials = [run_task(t) for _ in range(10**2)]
 	suc = sum(trials) / len(trials)
 	print('For n/k = %f, suc=%f' % (n/k, suc))
@@ -36,16 +36,16 @@ def est_suc(k, n, L, T):
 
 
 
-k = 50; T = 2
+k = 100; ld = 3
 ns = np.arange(k, 2.5*k+1, 1)
-for epsilon in [10**i for i in range(-3, 0)]:
+for epsilon in [10**i for i in range(-1, 0)]:
 	plt.figure()
-	for L in [2**j for j in range(1,5)]:
+	for L in [2**j for j in range(2,4)]:
 		print('\nSuccessful Decoding Probabilities for L=%f' % L)
-		suc_lst = [est_suc(k, n, L, T) for n in ns]
+		suc_lst = [est_suc(k, n, L, ld) for n in ns]
 		plt.plot(ns / k, suc_lst, label='L=%d' % L)
 		print('total time for L=%d: ' % L, time.time()-t0)
-	plt.title('LDGM Success Rate w/ epsilon=%.3f, k=%d (Irregular Left)' % (epsilon, k))
+	plt.title('Regular-Regular Success Rate w/ epsilon=%.3f, k=32 (Regular Left)' % epsilon)
 	plt.xlabel('Ratio of machines to jobs (n/k)')
 	plt.ylabel('Success Rate')
 	plt.legend()

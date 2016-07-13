@@ -1,12 +1,15 @@
 #!/usr/bin/python
+from math import ceil
 import subprocess
 from graph_subroutines import *
 
+
 #input
 k = 6
-n = 7
-T = 10.0
-n_trial = 5
+# ns = range(int(1.0*k), int(2*k+1), k/10)
+ns = [7,7,7]
+Ts = [10.0, 5.0]
+n_trial = 2
 
 def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False):
 
@@ -67,8 +70,17 @@ def run_multiple_trials(k, n, T, n_trial):
 	success_rate = ct_success / float(n_trial)
 	return success_rate
 
+success_rates_Ts = []
+for T in Ts:
+	success_rates = []
+	for n in ns:
+		success_rate = run_multiple_trials(k, n, T, n_trial)
+		print "success_rate", success_rate
+		success_rates.append(success_rate)
+	success_rates_Ts.append(success_rates)
+	save_success_rate_list(ns, success_rates, T)
 
-success_rate = run_multiple_trials(k, n, T, n_trial)
-
-print "success_rate", success_rate
+# plotting part
+print success_rates_Ts
+plotting(k, ns, Ts, success_rates_Ts)
 

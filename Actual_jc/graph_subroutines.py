@@ -1,3 +1,5 @@
+import matplotlib; matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend; instead, writes files
+from matplotlib import pyplot as plt
 import numpy as np
 import csv
 
@@ -127,3 +129,56 @@ def just_get_machine_failed_list(n, eps):
 		else:
 			pass
 	return machine_failed_list
+
+
+def save_success_rate_list(ns, success_rates, T):
+	csv_file = open("success_rate_list_T%.2f.csv" % T, "w")
+	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
+
+	for i in range(len(ns)):
+		cw.writerow([str(ns[i]), str(success_rates[i])])
+	csv_file.close()
+
+def save_success_rate_list_sim(ns, success_rates, eps):
+	csv_file = open("success_rate_list_eps%f.csv" % eps, "w")
+	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
+
+	for i in range(len(ns)):
+		cw.writerow([str(ns[i]), str(success_rates[i])])
+	csv_file.close()
+
+
+def plotting(k, ns, Ts, success_rates_Ts):
+	ndivk = [ns[i]/float(k) for i in range(len(ns))]
+	print "n/k", ndivk
+	# ndivk = [1.0, 1.2, 1.4]
+	# success_rates_Ts = [[0.2, 0.6, 0.8], [0.9, 0.95, 1.0]]
+	
+	for i in range(len(Ts)):
+		plt.plot(ndivk, success_rates_Ts[i], label='T=%.2f'% Ts[i])
+	
+	plt.title('LDGM Success Rate for k=%d' % k)
+	plt.xlabel('Ratio of machines to jobs (n/k)')
+	plt.ylabel('Success Rate')
+	plt.legend()
+	# plt.show()
+	plt.savefig('f1.png')
+
+
+def plotting_sim(k, ns, epss, success_rates_epss):
+	ndivk = [ns[i]/float(k) for i in range(len(ns))]
+	print "n/k", ndivk
+	
+	# ndivk = [1.0, 1.2, 1.4]
+	# success_rates_Ts = [[0.2, 0.6, 0.8], [0.9, 0.95, 1.0]]
+	
+
+	for i in range(len(epss)):
+		plt.plot(ndivk, success_rates_epss[i], label='eps=%f'% epss[i])
+	
+	plt.title('LDGM Success Rate (sim) for k=%d' % k)
+	plt.xlabel('Ratio of machines to jobs (n/k)')
+	plt.ylabel('Success Rate')
+	plt.legend()
+	# plt.show()
+	plt.savefig('f_sim.png')
