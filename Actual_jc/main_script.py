@@ -5,11 +5,11 @@ from graph_subroutines import *
 
 
 #input
-k = 6
-# ns = range(int(1.0*k), int(2*k+1), k/10)
-ns = [7]
-Ts = [5.0]
-n_trial = 1
+k = 10
+ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
+# ns = [7, 8]
+Ts = [5.0,7.0]
+n_trial = 3
 
 def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False):
 

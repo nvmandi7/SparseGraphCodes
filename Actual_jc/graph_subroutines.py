@@ -234,9 +234,9 @@ def plotting(k, ns, Ts, success_rates_Ts):
 	plt.title('LDGM Success Rate for k=%d' % k)
 	plt.xlabel('Ratio of machines to jobs (n/k)')
 	plt.ylabel('Success Rate')
-	plt.legend()
+	plt.legend(loc = 4)
 	# plt.show()
-	plt.savefig('f1.png')
+	plt.savefig('f_cluster.png')
 
 
 def plotting_sim(k, ns, epss, success_rates_epss):
@@ -253,6 +253,6 @@ def plotting_sim(k, ns, epss, success_rates_epss):
 	plt.title('LDGM Success Rate (sim) for k=%d' % k)
 	plt.xlabel('Ratio of machines to jobs (n/k)')
 	plt.ylabel('Success Rate')
-	plt.legend()
+	plt.legend(loc = 4)
 	# plt.show()
 	plt.savefig('f_sim.png')

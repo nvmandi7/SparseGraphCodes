@@ -2,4 +2,4 @@
 	- matrix multiplication (looping over hundreds of time?)
 
 
-	
+3. run once and check peelabilty for multiple T?
