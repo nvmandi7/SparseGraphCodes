@@ -150,7 +150,7 @@ def save_success_rate_list_sim(ns, success_rates, eps):
 
 def plotting(k, ns, Ts, success_rates_Ts):
 	ndivk = [ns[i]/float(k) for i in range(len(ns))]
-	print "n/k", ndivk
+	# print "n/k", ndivk
 	# ndivk = [1.0, 1.2, 1.4]
 	# success_rates_Ts = [[0.2, 0.6, 0.8], [0.9, 0.95, 1.0]]
 	
@@ -167,7 +167,7 @@ def plotting(k, ns, Ts, success_rates_Ts):
 
 def plotting_sim(k, ns, epss, success_rates_epss):
 	ndivk = [ns[i]/float(k) for i in range(len(ns))]
-	print "n/k", ndivk
+	# print "n/k", ndivk
 	
 	# ndivk = [1.0, 1.2, 1.4]
 	# success_rates_Ts = [[0.2, 0.6, 0.8], [0.9, 0.95, 1.0]]

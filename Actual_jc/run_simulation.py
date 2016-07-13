@@ -28,9 +28,10 @@ def run_multiple_trials(k, n, eps, n_trial):
 success_rates_epss = []
 for eps in epss:
 	success_rates = []
+	print "running sim eps=", eps, ", k=", k
 	for n in ns:
 		success_rate = run_multiple_trials(k, n, eps, n_trial)
-		print "success_rate", success_rate
+		print "success_rate", success_rate, "for n/k=%f"%(k/float(n))
 		success_rates.append(success_rate)
 	success_rates_epss.append(success_rates)
 	save_success_rate_list_sim(ns, success_rates, eps)

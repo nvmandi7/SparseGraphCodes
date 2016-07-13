@@ -42,8 +42,10 @@ while n_done < n:
 			n_done += 1
 
 # check every receive process is done
-for i in range(n):
-	rcv_requests[i].Wait()
+# for i in range(n):
+# 	rcv_requests[i].Wait()
+MPI.Request.Waitall(rcv_requests)
+
 
 # print arrival_time
 
