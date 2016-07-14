@@ -1,12 +1,15 @@
 #!/usr/bin/python
+from math import ceil
 import subprocess
 from graph_subroutines import *
 
+
 #input
 k = 6
-n = 7
-T = 10.0
-n_trial = 5
+# ns = range(int(1.0*k), int(2*k+1), k/10)
+ns = [7]
+Ts = [5.0]
+n_trial = 1
 
 def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False):
 
@@ -45,7 +48,7 @@ def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False):
 			"-np", str(num_worker_proc), "python", "job_worker.py", str(k), str(n), ":",
 			"-np", "1", "python", "job_master.py", str(k), str(n), str(T)
 			]
-		# subprocess.call(cmd_arg) # run with printing in stdout (for debug)
+		# subprocess.call(cmd_arg); out = 1 # run with printing in stdout (for debug), fix output 1
 
 		proc = subprocess.Popen(cmd_arg, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = proc.communicate()
@@ -67,8 +70,18 @@ def run_multiple_trials(k, n, T, n_trial):
 	success_rate = ct_success / float(n_trial)
 	return success_rate
 
+success_rates_Ts = []
+for T in Ts:
+	success_rates = []
+	print "running T=", T, "sec, k=", k
+	for n in ns:
+		success_rate = run_multiple_trials(k, n, T, n_trial)
+		print "success_rate", success_rate, "for n/k=%f"%(k/float(n))
+		success_rates.append(success_rate)
+	success_rates_Ts.append(success_rates)
+	save_success_rate_list(ns, success_rates, T)
 
-success_rate = run_multiple_trials(k, n, T, n_trial)
-
-print "success_rate", success_rate
+# plotting part
+# print success_rates_Ts
+plotting(k, ns, Ts, success_rates_Ts)
 

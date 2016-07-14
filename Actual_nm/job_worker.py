@@ -25,12 +25,19 @@ if rank == local_master_rank:
 	output_data = [np.empty(output.shape, output.dtype) for _ in range(len(local_process_rank_list))]
 	
 	send_data = np.zeros(output.shape, output.dtype)
+
+	rcv_requests = []
+	for i in range(1, len(local_process_rank_list)):
+		req = comm.Irecv([output_data[i], MPI.FLOAT], source=local_process_rank_list[i], tag=0)
+		rcv_requests.append(req)
+	MPI.Request.Waitall(rcv_requests)
+
+
 	for i in range(len(local_process_rank_list)):
 		if i == 0:
 			output_data[0]  = np.copy(output)
 			send_data += output_data[0]
 		else:
-			comm.Recv([output_data[i], MPI.FLOAT], source=local_process_rank_list[i], tag=0) 
 			send_data += output_data[i]
 	
 	# send to master
@@ -42,3 +49,4 @@ else:
 
 
 comm.Barrier() # end of communication
+
