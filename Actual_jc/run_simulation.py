@@ -5,7 +5,7 @@ from graph_subroutines import *
 #input
 k = 100
 
-ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
+ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(20))))
 # ns = [7,8,9]
 epss = [0.1, 0.01, 0.001] # list of epsilons
 
