@@ -6,14 +6,44 @@ import sys
 import numpy as np
 
 # command line arguments
-def job_master_routine(k, n, T, rank):
+def job_master_routine(k, n, T,num_edges, rank):
 	error_floor = 0.01
 	output_shape = (1) # speicfy computaional job output array shape
 
 	comm = MPI.COMM_WORLD
 
 	# initialization
-	(machines_jobs_list, local_master_list) = read_machines_jobs_list(n, k, -1) 
+	(machines_jobs_list, local_master_list) = read_machines_jobs_list(n, k) 
+
+	# Broadcast machines_jobs_list data to workers
+	machines_jobs_list_flat =  np.array([x for sublist in machines_jobs_list for x in sublist],dtype = np.int32 ) # flatten lsit of list	
+	machines_jobs_list_sizes = np.array([len(jobs_list) for jobs_list in machines_jobs_list], dtype = np.int32)
+	comm.Barrier()	
+	comm.Bcast([machines_jobs_list_flat , MPI.INT], root = num_edges)
+	comm.Bcast([machines_jobs_list_sizes, MPI.INT], root = num_edges)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	completed = [False for _ in range(n)]
 

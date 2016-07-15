@@ -12,6 +12,6 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
 if rank == num_edges:
-	job_master_routine(k,n,T,rank)
+	job_master_routine(k,n,T,num_edges,rank)
 else:
-	job_worker_routine(k,n,rank)
+	job_worker_routine(k,n,num_edges,rank)

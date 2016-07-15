@@ -8,8 +8,6 @@ def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):# machines_jo
 	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2]]
 	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2,4], [3], [0,1], [4,5]]  # k6 n7
 	# return machines_jobs_list
-
-
 	# import random; seed0 = random.randint(0,10000)
 	# seed0 = 3635
 	# print "np seed", seed0
@@ -116,24 +114,16 @@ def save_machines_jobs_list(machines_jobs_list):
 	csv_file.close()
 
 
-def read_machines_jobs_list(n, k, rank):
+def read_machines_jobs_list(n, k):
 	# read machines_jobs_list from csv column list of (job_number, machine_number, local_master_rank)
 	# use rank = -1 to avoid providing local machine info
 	
 	machines_jobs_list = [[] for i in range(n)]
 	local_master_list = [-1 for i in range(n)] # indcates local master's rank
-	
-	my_local_master_rank = -2
-	my_machine_number = -2
-	my_job_number = -2
-	my_local_process_rank_list = []
-	global_master_rank = -2
-
 
 	csv_file = open("machines_jobs_list.csv", "r")
 	cr = csv.reader(csv_file)
 
-	ct_rank = 0
 	for row in cr:
 		job_number = int(row[0])
 		machine_number = int(row[1])
@@ -141,26 +131,44 @@ def read_machines_jobs_list(n, k, rank):
 		machines_jobs_list[machine_number].append(job_number)
 		if local_master_list[machine_number] == -1:
 			local_master_list[machine_number] = local_master_rank
-		if rank == ct_rank:
-			my_machine_number = machine_number
-			my_job_number = job_number
-			my_local_master_rank = local_master_rank
-
-		ct_rank += 1
 	csv_file.close()
 
-	if rank != -1:
-		my_local_process_rank_list = \
-			[(my_local_master_rank + i) for i in range(len(machines_jobs_list[my_machine_number]))]
-		global_master_rank = sum([len(machines_jobs_list[i]) for i in range(len(machines_jobs_list))])
-
 	master_info = (machines_jobs_list, local_master_list)
-	worker_info = (my_job_number, my_machine_number, my_local_master_rank, my_local_process_rank_list, global_master_rank)
 
-	if rank == -1:
-		return master_info
-	else:
-		return worker_info
+	return master_info
+
+def get_machines_jobs_list(machines_jobs_list_flat, machines_jobs_list_sizes):
+	machines_jobs_list = [[] for _ in range(len(machines_jobs_list_sizes))]
+	m_i = 0
+	ct0 = 0
+	for i in range(len(machines_jobs_list_flat)):
+		machines_jobs_list[m_i].append(machines_jobs_list_flat[i])
+		ct0 += 1
+		if ct0 == machines_jobs_list_sizes[m_i]:
+			m_i += 1
+			ct0 = 0
+	return machines_jobs_list
+
+def get_worker_info_from_machines_jobs_list(n,k,machines_jobs_list, rank):
+
+	job_number_worker = -1
+	local_master_rank = -1
+	local_process_rank_list = []
+
+	ct_rank = 0
+	ct_master_rank = 0
+	for n_i in range(n):
+		for job_number in machines_jobs_list[n_i]:
+			if rank == ct_rank:
+				job_number_worker = job_number
+				local_master_rank = ct_master_rank
+				local_process_rank_list = [(local_master_rank + i2) for i2 in range(len(machines_jobs_list[n_i]))]
+			ct_rank +=1
+		ct_master_rank += len(machines_jobs_list[n_i])
+	
+	return job_number_worker, local_master_rank, local_process_rank_list
+
+
 
 
 def peel(machines_jobs_list, machine_failed_list, n, k, error_floor, get_decode_seq = True):

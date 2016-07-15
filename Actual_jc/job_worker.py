@@ -5,13 +5,36 @@ import numpy as np
 import sys
 
 
-def job_worker_routine(k, n, rank):
+def job_worker_routine(k, n, num_edges, rank):
 	comm = MPI.COMM_WORLD
 
 	#initializaiton
-	(job_number, machine_number, local_master_rank, local_process_rank_list, global_master_rank) = \
-		read_machines_jobs_list(n, k, rank) 
 
+	#receive machine_jobs_list data from master
+	machines_jobs_list_flat = np.empty(num_edges, np.int32)
+	machines_jobs_list_sizes = np.empty(n, np.int32)
+	comm.Barrier()
+	comm.Bcast([machines_jobs_list_flat, MPI.INT], root = num_edges)
+	comm.Bcast([machines_jobs_list_sizes, MPI.INT], root = num_edges)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	machines_jobs_list =  get_machines_jobs_list(machines_jobs_list_flat, machines_jobs_list_sizes)
+	job_number, local_master_rank, local_process_rank_list = \
+		get_worker_info_from_machines_jobs_list(n,k,machines_jobs_list, rank)
 	comm.Barrier()
 
 	# run computation
@@ -38,7 +61,7 @@ def job_worker_routine(k, n, rank):
 				send_data += output_data[i]
 		
 		# send to master
-		comm.Send([send_data, MPI.FLOAT], dest=global_master_rank, tag=1) 
+		comm.Send([send_data, MPI.FLOAT], dest=num_edges, tag=1) 
 		
 	else:
 		comm.Send([output, MPI.FLOAT], dest=local_master_rank, tag=0) # send to local master

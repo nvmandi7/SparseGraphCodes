@@ -5,9 +5,9 @@ from graph_subroutines import *
 
 
 #input
-k = 10
+k = 5
 ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
-# ns = [4]
+# ns = [7]
 Ts = [5.0,7.0]
 n_trial = 10
 RUN_LOCAL = True
