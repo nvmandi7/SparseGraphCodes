@@ -3,11 +3,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 import csv
 
-def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
-	# machines_jobs_list = [[0, 1, 2], [1, 2], [2]]
+def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):# machines_jobs_list = [[0, 1, 2], [1, 2], [2]]
 	# machines_jobs_list = [[0, 1] ,[1]]
 	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2]]
-	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2,4], [3], [0,1], [4,5]]
+	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2,4], [3], [0,1], [4,5]]  # k6 n7
 	# return machines_jobs_list
 
 
@@ -16,7 +15,7 @@ def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
 	# print "np seed", seed0
 	# np.random.seed(seed0)
 
-	if dist_type == 'regular-soliton':
+	if 'soliton' in dist_type:
 		# Default
 		if params == []: params = [8, 0.05]
 		L, sing_frac = params[0], params[1]
@@ -38,6 +37,30 @@ def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
 			machines.extend([d for _ in range(int(num_machines[d]))])
 
 
+		if dist_type == 'regular-soliton':
+			# Making regular left degrees
+			right_total = sum(machines)
+			ave_degree = np.floor(right_total / k)
+			remainder = right_total - ave_degree*k
+			
+			job_degrees = [ave_degree for _ in range(k)]
+			for i in range(int(remainder)): job_degrees[i] += 1
+		elif dist_type == 'irregular-soliton':
+			jobs = range(k)
+			for machine in machines:
+				m_jobs = list(np.random.choice(jobs, size=machine, replace=False))
+				machines_jobs_list.append(m_jobs)
+			return machines_jobs_list
+
+
+	elif dist_type == 'regular-regular':
+		if params == []: params = [3, 0.05]
+		right_degree, sing_frac = params[0], params[1]
+
+		machines = [1 for _ in range(int(sing_frac*n))]
+		rest = n - int(sing_frac*n)
+		machines.extend([right_degree for _ in range(rest)])
+
 		# Making regular left degrees
 		right_total = sum(machines)
 		ave_degree = np.floor(right_total / k)
@@ -46,42 +69,34 @@ def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
 		job_degrees = [ave_degree for _ in range(k)]
 		for i in range(int(remainder)): job_degrees[i] += 1
 
+	# Distributing
+	all_jobs = []
+	for i in range(len(job_degrees)):
+		lst = [i for _ in range(int(job_degrees[i]))]
+		all_jobs.extend(lst)
+	np.random.shuffle(all_jobs)
 
-		# Distributing
-		all_jobs = []
-		for i in range(len(job_degrees)):
-			lst = [i for _ in range(int(job_degrees[i]))]
-			all_jobs.extend(lst)
+	# Don't give machine same job twice
+	succeeded = False
+	while not succeeded:
 		np.random.shuffle(all_jobs)
+		machines_jobs_list = []
+		for machine in machines[::-1]:
+			m_jobs, i, rem = [], 0, machine
+			while rem > 0:
+				if i >= len(all_jobs):
+					rem = -1
+				elif all_jobs[i] not in m_jobs:
+					m_jobs.append(all_jobs.pop(i))
+					rem -= 1
+				else:
+					i += 1
+			machines_jobs_list.append(m_jobs)
+		if len(machines_jobs_list) == len(machines):
+			succeeded = True
+	# print machines_jobs_list
+	return machines_jobs_list
 
-		# Don't give machine same job twice
-		succeeded = False
-		while not succeeded:
-			np.random.shuffle(all_jobs)
-			machines_jobs_list = []
-			for machine in machines[::-1]:
-				m_jobs, i, rem = [], 0, machine
-				while rem > 0:
-					if i >= len(all_jobs):
-						rem = -1
-					elif all_jobs[i] not in m_jobs:
-						m_jobs.append(all_jobs.pop(i))
-						rem -= 1
-					else:
-						i += 1
-				machines_jobs_list.append(m_jobs)
-			if len(machines_jobs_list) == len(machines):
-				succeeded = True
-		# print machines_jobs_list
-		return machines_jobs_list
-		
-	elif dist_type == 'irregular-soliton':
-		pass
-
-
-	elif dist_type == 'regular-regular':
-		pass
-		
 
 
 
@@ -221,7 +236,6 @@ def save_success_rate_list_sim(ns, success_rates, eps):
 		cw.writerow([str(ns[i]), str(success_rates[i])])
 	csv_file.close()
 
-
 def plotting(k, ns, Ts, success_rates_Ts):
 	ndivk = [ns[i]/float(k) for i in range(len(ns))]
 	# print "n/k", ndivk
@@ -256,3 +270,11 @@ def plotting_sim(k, ns, epss, success_rates_epss):
 	plt.legend(loc = 4)
 	# plt.show()
 	plt.savefig('f_sim.png')
+
+
+def save_arrival_time_list(arrival_time):
+	csv_file = open("arrival_time.csv", "w")
+	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
+	for i in range(len(arrival_time)):
+		cw.writerow([str(arrival_time)])
+	csv_file.close()
