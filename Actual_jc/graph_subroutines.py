@@ -284,5 +284,5 @@ def save_arrival_time_list(arrival_time):
 	csv_file = open("arrival_time.csv", "w")
 	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
 	for i in range(len(arrival_time)):
-		cw.writerow([str(arrival_time)])
+		cw.writerow([str(arrival_time[i])])
 	csv_file.close()

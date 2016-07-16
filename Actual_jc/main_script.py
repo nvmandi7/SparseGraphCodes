@@ -11,10 +11,10 @@ ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
 Ts = [5.0,7.0]
 n_trial = 10
 RUN_LOCAL = True
-# RUN_LOCAL = False
+RUN_LOCAL = False
 
 def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False, DEBUG = False):
-	# DEBUG = True
+	DEBUG = True
 
 	num_edges = sum([len(machines_jobs_list[i]) for i in range(len(machines_jobs_list))]) # number of total worker processes
 

@@ -3,7 +3,7 @@ import numpy as np
 
 n_trial = 100
 
-n = 1000
+n = 500
 size = (100,100)
 
 

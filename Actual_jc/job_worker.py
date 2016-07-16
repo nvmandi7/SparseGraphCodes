@@ -16,22 +16,7 @@ def job_worker_routine(k, n, num_edges, rank):
 	comm.Barrier()
 	comm.Bcast([machines_jobs_list_flat, MPI.INT], root = num_edges)
 	comm.Bcast([machines_jobs_list_sizes, MPI.INT], root = num_edges)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
 	machines_jobs_list =  get_machines_jobs_list(machines_jobs_list_flat, machines_jobs_list_sizes)
 	job_number, local_master_rank, local_process_rank_list = \
 		get_worker_info_from_machines_jobs_list(n,k,machines_jobs_list, rank)

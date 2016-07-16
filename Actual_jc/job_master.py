@@ -8,7 +8,7 @@ import numpy as np
 # command line arguments
 def job_master_routine(k, n, T,num_edges, rank):
 	error_floor = 0.01
-	output_shape = (1) # speicfy computaional job output array shape
+	output_shape = (10000) # speicfy computaional job output array shape
 
 	comm = MPI.COMM_WORLD
 
@@ -22,33 +22,10 @@ def job_master_routine(k, n, T,num_edges, rank):
 	comm.Bcast([machines_jobs_list_flat , MPI.INT], root = num_edges)
 	comm.Bcast([machines_jobs_list_sizes, MPI.INT], root = num_edges)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	completed = [False for _ in range(n)]
 
 	rcv_requests = []
-	arrival_time = [0.0 for _ in range(n)]
+	arrival_time = [-1.0 for _ in range(n)]
 	machine_failed_list =[]
 	encoded_data = [np.empty(output_shape, dtype=np.float32) for _ in range(n)] # to recieve from local masters
 
