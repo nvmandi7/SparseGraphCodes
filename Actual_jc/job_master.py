@@ -41,7 +41,7 @@ def job_master_routine(k, n, T,num_edges, rank):
 	n_done = 0
 	while n_done < n:
 		for i in range(n):
-			if rcv_requests[i].Test():
+			if not completed[i] and rcv_requests[i].Test():
 				completed[i] = True
 				arrival_time[i] = time.time() - start_time
 				n_done += 1
@@ -53,7 +53,7 @@ def job_master_routine(k, n, T,num_edges, rank):
 	# print arrival_time
 
 	comm.Barrier() # end of communication
-
+	# print arrival_time
 
 
 	# get failed machine list

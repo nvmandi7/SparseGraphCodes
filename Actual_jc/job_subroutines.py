@@ -8,7 +8,7 @@ def run_job_nothing(job_number):
 
 def run_job(job_number):
 	# simple matrix multiplication
-	n = 10000
+	n = 1000
 	size = (100,100)
 
 	for i in range(n):

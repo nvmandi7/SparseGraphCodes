@@ -2,19 +2,20 @@
 from math import ceil
 import subprocess
 from graph_subroutines import *
+import time
 
 
 #input
 k = 5
-ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
+ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(3))))
 # ns = [7]
-Ts = [5.0,7.0]
+Ts = [2.5, 3.0, 3.5, 4, 4.5]
 n_trial = 10
 RUN_LOCAL = True
-RUN_LOCAL = False
+# RUN_LOCAL = False
 
 def spawn_process_linux(machines_jobs_list, k, n, T, run_local = False, DEBUG = False):
-	DEBUG = True
+	# DEBUG = True
 
 	num_edges = sum([len(machines_jobs_list[i]) for i in range(len(machines_jobs_list))]) # number of total worker processes
 
@@ -83,8 +84,10 @@ for T in Ts:
 	success_rates = []
 	print "running T=", T, "sec, k=", k
 	for n in ns:
+		start_time = time.time()
 		success_rate = run_multiple_trials(k, n, T, n_trial, RUN_LOCAL)
-		print "success_rate", success_rate, "for n/k=%f"%(n/float(k))
+		run_time = time.time() - start_time
+		print "success_rate", success_rate, "for n/k=%f"%(n/float(k)), "took", run_time , "sec"
 		success_rates.append(success_rate)
 	success_rates_Ts.append(success_rates)
 	save_success_rate_list(ns, success_rates, T)
