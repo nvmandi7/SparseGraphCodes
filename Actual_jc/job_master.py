@@ -61,7 +61,7 @@ def job_master_routine(k, n, T,num_edges, rank):
 		if T < arrival_time[i]:
 			machine_failed_list.append(i)
 
-	save_arrival_time_list(arrival_time)
+	save_arrival_time_list(arrival_time, n)
 
 	# run peeling
 	dec_seq, dec_ans, peel_success = \

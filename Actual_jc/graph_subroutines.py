@@ -280,8 +280,8 @@ def plotting_sim(k, ns, epss, success_rates_epss):
 	plt.savefig('f_sim.png')
 
 
-def save_arrival_time_list(arrival_time):
-	csv_file = open("arrival_time.csv", "w")
+def save_arrival_time_list(arrival_time, n):
+	csv_file = open("arrival_time_n%d.csv"%n, "w")
 	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
 	for i in range(len(arrival_time)):
 		cw.writerow([str(arrival_time[i])])
