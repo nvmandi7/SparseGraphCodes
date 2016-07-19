@@ -4,18 +4,17 @@ from graph_subroutines import *
 
 #input
 k = 100
-L = 8
 
-ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(10))))
+ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(20))))
 # ns = [7,8,9]
-epss = [i/100.0 for i in range(0,20,2)] # list of epsilons
+epss = [0.1, 0.01, 0.001] # list of epsilons
 
 n_trial = 100
 error_floor = 0.01
 
 
 def run_trial(k, n, eps):
-	machines_jobs_list = distribute_jobs(n , k, params=[L, 0.05])
+	machines_jobs_list = distribute_jobs(n , k)
 	machine_failed_list = just_get_machine_failed_list(n, eps)
 	_, _, peel_success = peel(machines_jobs_list, machine_failed_list, n, k, error_floor, get_decode_seq = False)
 	return peel_success

@@ -3,15 +3,11 @@ from matplotlib import pyplot as plt
 import numpy as np
 import csv
 
-def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
-	# params is of the form [L, sing_frac] in the case of soliton, and
-	# [right_degree, sing_frac in the case of regular-right]
-
-
-	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2,4], [3], [0,1], [4,5]]
+def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):# machines_jobs_list = [[0, 1, 2], [1, 2], [2]]
+	# machines_jobs_list = [[0, 1] ,[1]]
+	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2]]
+	# machines_jobs_list = [[0, 1,2] ,[1,2], [0], [2,4], [3], [0,1], [4,5]]  # k6 n7
 	# return machines_jobs_list
-
-
 	# import random; seed0 = random.randint(0,10000)
 	# seed0 = 3635
 	# print "np seed", seed0
@@ -70,9 +66,6 @@ def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
 		
 		job_degrees = [ave_degree for _ in range(k)]
 		for i in range(int(remainder)): job_degrees[i] += 1
-		
-
-
 
 	# Distributing
 	all_jobs = []
@@ -104,6 +97,7 @@ def distribute_jobs(n , k, dist_type='regular-soliton', params=[]):
 
 
 
+
 def save_machines_jobs_list(machines_jobs_list):
 	# save machines_jobs_list as csv column list of (job_number, machine_number, local_master_rank)
 	csv_file = open("machines_jobs_list.csv", "w")
@@ -120,24 +114,16 @@ def save_machines_jobs_list(machines_jobs_list):
 	csv_file.close()
 
 
-def read_machines_jobs_list(n, k, rank):
+def read_machines_jobs_list(n, k):
 	# read machines_jobs_list from csv column list of (job_number, machine_number, local_master_rank)
 	# use rank = -1 to avoid providing local machine info
 	
 	machines_jobs_list = [[] for i in range(n)]
 	local_master_list = [-1 for i in range(n)] # indcates local master's rank
-	
-	my_local_master_rank = -2
-	my_machine_number = -2
-	my_job_number = -2
-	my_local_process_rank_list = []
-	global_master_rank = -2
-
 
 	csv_file = open("machines_jobs_list.csv", "r")
 	cr = csv.reader(csv_file)
 
-	ct_rank = 0
 	for row in cr:
 		job_number = int(row[0])
 		machine_number = int(row[1])
@@ -145,26 +131,44 @@ def read_machines_jobs_list(n, k, rank):
 		machines_jobs_list[machine_number].append(job_number)
 		if local_master_list[machine_number] == -1:
 			local_master_list[machine_number] = local_master_rank
-		if rank == ct_rank:
-			my_machine_number = machine_number
-			my_job_number = job_number
-			my_local_master_rank = local_master_rank
-
-		ct_rank += 1
 	csv_file.close()
 
-	if rank != -1:
-		my_local_process_rank_list = \
-			[(my_local_master_rank + i) for i in range(len(machines_jobs_list[my_machine_number]))]
-		global_master_rank = sum([len(machines_jobs_list[i]) for i in range(len(machines_jobs_list))])
-
 	master_info = (machines_jobs_list, local_master_list)
-	worker_info = (my_job_number, my_machine_number, my_local_master_rank, my_local_process_rank_list, global_master_rank)
 
-	if rank == -1:
-		return master_info
-	else:
-		return worker_info
+	return master_info
+
+def get_machines_jobs_list(machines_jobs_list_flat, machines_jobs_list_sizes):
+	machines_jobs_list = [[] for _ in range(len(machines_jobs_list_sizes))]
+	m_i = 0
+	ct0 = 0
+	for i in range(len(machines_jobs_list_flat)):
+		machines_jobs_list[m_i].append(machines_jobs_list_flat[i])
+		ct0 += 1
+		if ct0 == machines_jobs_list_sizes[m_i]:
+			m_i += 1
+			ct0 = 0
+	return machines_jobs_list
+
+def get_worker_info_from_machines_jobs_list(n,k,machines_jobs_list, rank):
+
+	job_number_worker = -1
+	local_master_rank = -1
+	local_process_rank_list = []
+
+	ct_rank = 0
+	ct_master_rank = 0
+	for n_i in range(n):
+		for job_number in machines_jobs_list[n_i]:
+			if rank == ct_rank:
+				job_number_worker = job_number
+				local_master_rank = ct_master_rank
+				local_process_rank_list = [(local_master_rank + i2) for i2 in range(len(machines_jobs_list[n_i]))]
+			ct_rank +=1
+		ct_master_rank += len(machines_jobs_list[n_i])
+	
+	return job_number_worker, local_master_rank, local_process_rank_list
+
+
 
 
 def peel(machines_jobs_list, machine_failed_list, n, k, error_floor, get_decode_seq = True):
@@ -240,7 +244,6 @@ def save_success_rate_list_sim(ns, success_rates, eps):
 		cw.writerow([str(ns[i]), str(success_rates[i])])
 	csv_file.close()
 
-
 def plotting(k, ns, Ts, success_rates_Ts):
 	ndivk = [ns[i]/float(k) for i in range(len(ns))]
 	# print "n/k", ndivk
@@ -253,9 +256,9 @@ def plotting(k, ns, Ts, success_rates_Ts):
 	plt.title('LDGM Success Rate for k=%d' % k)
 	plt.xlabel('Ratio of machines to jobs (n/k)')
 	plt.ylabel('Success Rate')
-	plt.legend()
+	plt.legend(loc = 4)
 	# plt.show()
-	plt.savefig('f1.png')
+	plt.savefig('f_cluster.png')
 
 
 def plotting_sim(k, ns, epss, success_rates_epss):
@@ -272,6 +275,14 @@ def plotting_sim(k, ns, epss, success_rates_epss):
 	plt.title('LDGM Success Rate (sim) for k=%d' % k)
 	plt.xlabel('Ratio of machines to jobs (n/k)')
 	plt.ylabel('Success Rate')
-	plt.legend(loc=4)
+	plt.legend(loc = 4)
 	# plt.show()
 	plt.savefig('f_sim.png')
+
+
+def save_arrival_time_list(arrival_time, n):
+	csv_file = open("arrival_time_n%d.csv"%n, "w")
+	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
+	for i in range(len(arrival_time)):
+		cw.writerow([str(arrival_time[i])])
+	csv_file.close()
