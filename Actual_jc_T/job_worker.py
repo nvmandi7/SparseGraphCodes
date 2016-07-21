@@ -23,8 +23,8 @@ def job_worker_routine(k, n, num_edges, rank):
 	comm.Barrier()
 
 	# run computation
-	# output = np.array(run_job(job_number), dtype=np.float32)
-	output = np.array(run_job_nothing(job_number), dtype=np.float32)
+	output = np.array(run_job(job_number), dtype=np.float32)
+	# output = np.array(run_job_nothing(job_number), dtype=np.float32)
 
 	# receive, encode and send
 	if rank == local_master_rank:	

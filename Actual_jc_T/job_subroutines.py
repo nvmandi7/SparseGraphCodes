@@ -11,7 +11,7 @@ def run_job_nothing(job_number):
 	return job_number +0.0
  
 
-def run_job(job_number, mode):
+def run_job(job_number):
 	# simple matrix multiplication
 	n = 1000
 	size = (100,100)

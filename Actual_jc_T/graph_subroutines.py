@@ -240,13 +240,12 @@ def just_get_machine_failed_list(n, eps):
 			pass
 	return machine_failed_list
 
-
-def save_suc_Tss_list(ns, suc_Tss):
+def save_suc_Tss_list(k, ns, suc_Tss):
 	csv_file = open("suc_Tss_list.csv", "w")
 	cw = csv.writer(csv_file , delimiter=',', quotechar='|')
 
 	for i in range(len(ns)):
-		row = [str(int(ns[i]))]
+		row = [str(int(k)), str(int(ns[i]))]
 		row.extend([ str(suc_T) for suc_T in suc_Tss[i]] )
 		cw.writerow(row)
 	csv_file.close()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -u
 from math import ceil
 import subprocess
 from graph_subroutines import *
@@ -7,8 +7,8 @@ import time
 
 #input
 k = 5
-# ns = range(int(1.0*k), int(2*k+1), int(ceil(k/float(3))))
-ns = [10]
+ns = range(int(1.2*k), int(2*k+1), int(ceil(k/float(3))))
+# ns = [10]
 n_trial = 10
 fail_rate_limit = 0.2
 
@@ -88,13 +88,22 @@ for n in ns:
 	suc_Ts = run_multiple_trials(k, n, n_trial, RUN_LOCAL)
 	run_time = time.time() - start_time
 	fail_rate = sum([1 for suc_T in suc_Ts if suc_T < 0]) / float(n_trial)
+	# print suc_Ts
 	print "for n/k=%.2f" % (n/float(k)), ",fail rate:", fail_rate , "took %.2f "%run_time , "sec"
 	fail_rates.append(fail_rate)
 	suc_Tss.append(suc_Ts)
+# save_suc_Tss_list(ns, suc_Tss)
+
+# change -1.0 value to nan
+for suc_Ts in suc_Tss:
+	for i in range(len(suc_Ts)):
+		if suc_Ts[i] < 0:
+			suc_Ts[i] = float('nan')
 save_suc_Tss_list(ns, suc_Tss)
 
+
 # plotting histgram
-for i in range(len(ns)):
-	if fail_rates[i] < fail_rate_limit:
-		plot_histogram(suc_Tss[i], k, n)
+# for i in range(len(ns)):
+#	if fail_rates[i] < fail_rate_limit:
+#		plot_histogram(suc_Tss[i], k, ns[i])
 
