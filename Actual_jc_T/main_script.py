@@ -99,7 +99,7 @@ for suc_Ts in suc_Tss:
 	for i in range(len(suc_Ts)):
 		if suc_Ts[i] < 0:
 			suc_Ts[i] = float('nan')
-save_suc_Tss_list(ns, suc_Tss)
+save_suc_Tss_list(k, ns, suc_Tss)
 
 
 # plotting histgram

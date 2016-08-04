@@ -8,7 +8,7 @@ import numpy as np
 # command line arguments
 def job_master_routine(k, n, num_edges, rank):
 	error_floor = 0.01
-	output_shape = (10000) # speicfy computaional job output array shape
+	output_shape = (10000) # specify computaional job output array shape
 
 	comm = MPI.COMM_WORLD
 

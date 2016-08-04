@@ -1,5 +1,0 @@
-2. make computation_job(job_number)
-	- matrix multiplication (looping over hundreds of time?)
-
-
-3. run once and check peelabilty for multiple T?

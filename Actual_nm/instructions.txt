@@ -1,1 +1,29 @@
--ssh into ec2 instance that runs the system
+ssh ubuntu@ec2-52-25-135-108.us-west-2.compute.amazonaws.comsta
+-ssh into ec2 instance that runs the system (ssh-add nmkey.pem if denied)
+
+.starcluster/config, nano config,
+-change relevant variables
+
+starcluster start cluster1
+
+starcluster sshmaster -u sgeadmin cluster1
+
+git clone https://github.com/nvmandi7/SparseGraphCodes.git
+
+nano main_script.py
+-make all changes to experiement setup here
+
+tmux, to keep session active (look this up)
+	ctrl+b,d to detach
+	ctrl+b, % to split screen
+	tmux ls to show actve session
+	tmux a -t * to connect active session
+
+nano arrival_time_n*.csv to check when machines sent message to master
+
+-can look at figure by scp to home computer
+
+
+-DEBUG=True to allow print statements
+
+starcluster terminate cluster1
