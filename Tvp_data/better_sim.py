@@ -84,38 +84,48 @@ def run_jobs(machines_jobs_list):
 
 
 
-def step_peel(machines_with_times, k):
+def step_peel(machines_with_times, k, tip):
 	# Returns data points for time vs fraction of job answers recovered
 	data = []
 	answers = [False for i in range(k)]
 	available = []
+	remaining = len(machines_with_times)
 
 	for time, machine in machines_with_times:
-		for i in range(k):
-			if answers[i] and i in machine: machine.remove(i)
+		if time < tip:
+			for i in machine: 
+				answers[i] = True
+				remaining -= 1
+				if remaining == 0: break
+		else:
+			remaining -= 1
+			for i in range(k):
+				if answers[i] and i in machine: machine.remove(i)
 
-		available.append(machine)
-		available.sort(key=len)
+			available.append(machine)
+			available.sort(key=len)
 
-		while available and len(available[0]) <= 1:
-			if len(available[0]) == 0:
-				available.pop(0)
-			else:
-				job = available.pop(0)[0]
-				answers[job] = True
-				for machine in available:
-					if job in machine: machine.remove(job)
-				available.sort(key=len)
+			while available and len(available[0]) <= 1:
+				if len(available[0]) == 0:
+					available.pop(0)
+				else:
+					job = available.pop(0)[0]
+					answers[job] = True
+					for machine in available:
+						if job in machine: machine.remove(job)
+					available.sort(key=len)
 
 		p = sum(answers) / float(len(answers))
 		data.append( (time, p) )
+		if remaining == 0: break
+
 	return data
 
 
 k = 1000
 n = 1400
 L = 8
-sf = 0.15
+sf = 0.05
 nt = 10
 
 def single_sim():
@@ -128,19 +138,22 @@ def single_sim():
 
 def multi_sim(num_trials):
 	times, fracs = [], []
-	successes = 0
+	successes, finish_times = 0, []
 	for _ in range(num_trials):
-		data = step_peel(run_jobs(gen_dist(k, n, L, sf)), k)
+		data = step_peel(run_jobs(gen_dist(k, n, L, sf)), k, 0.1)
 		times.extend([d[0] for d in data])
 		fracs.extend([d[1] for d in data])
-		if fracs[-1] >= 1.00: successes += 1
-	print(successes / float(num_trials))
+		if fracs[-1] >= 1.00: 
+			successes += 1
+			i = 0
+			while data[i][1] < 1.00: i += 1
+			finish_times.append(data[i][0])
+	print(successes / float(num_trials), np.average(finish_times), np.median(finish_times))
 
 	plt.figure()
 	plt.plot(times, fracs, 'o', linestyle=' ')
 	plt.xlabel('Time (jobs are exponentials with mean 1)')
 	plt.ylabel('Fraction of job answers decoded')
-	plt.xlim(0, 2)
 
 	plt.title('Regular-soliton, k=%d, n=%d, L=%d, sf=%.2f' % (k, n, L, sf))
 	plt.show()

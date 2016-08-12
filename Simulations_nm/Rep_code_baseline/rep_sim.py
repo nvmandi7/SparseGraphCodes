@@ -30,7 +30,6 @@ def run_jobs(machines_jobs_list):
 
 def step_peel(machines_with_times, k):
 	# Returns data points for time vs fraction of job answers recovered
-	# Assumes feedback so that we don't send same job answer multiple times
 	data = []
 	answers = [False for i in range(k)]
 	num = int(len(machines_with_times) / len(machines_with_times[0][1]))
@@ -46,8 +45,8 @@ def step_peel(machines_with_times, k):
 
 k = 1000
 n = 1400
-L = 4
-sf = 0.05
+L = 3
+sf = 0.1
 nt = 10
 
 def single_sim():
